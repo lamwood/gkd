@@ -351,7 +351,8 @@ class MainViewModel : BaseViewModel(), OnSimpleLife {
             clearCache()
         }
 
-        if (updateStatus != null && termsAcceptedFlow.value) {
+        // 根据自动检查更新开关状态决定是否在启动时检查更新
+        if (storeFlow.value.autoCheckUpdate && updateStatus != null && termsAcceptedFlow.value) {
             updateStatus.checkUpdate()
         }
 

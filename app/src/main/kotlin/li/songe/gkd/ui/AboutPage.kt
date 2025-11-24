@@ -63,6 +63,7 @@ import li.songe.gkd.app
 import li.songe.gkd.store.storeFlow
 import li.songe.gkd.ui.component.PerfIcon
 import li.songe.gkd.ui.component.PerfIconButton
+import li.songe.gkd.ui.component.PerfSwitch
 import li.songe.gkd.ui.component.PerfTopAppBar
 import li.songe.gkd.ui.component.RotatingLoadingIcon
 import li.songe.gkd.ui.component.SettingItem
@@ -314,6 +315,25 @@ fun AboutPage() {
                     } else {
                         storeFlow.update { s -> s.copy(updateChannel = it.value) }
                     }
+                }
+                // 添加自动检查更新开关
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .itemPadding(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "自动更新",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    PerfSwitch(
+                        checked = store.autoCheckUpdate,
+                        onCheckedChange = { checked ->
+                            storeFlow.update { s -> s.copy(autoCheckUpdate = checked) }
+                        }
+                    )
                 }
                 Row(
                     modifier = Modifier

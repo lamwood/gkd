@@ -44,4 +44,6 @@ data class SettingsStore(
     val enableBlockA11yAppList: Boolean = false,
     val blockA11yAppListFollowMatch: Boolean = true,
     val a11yAppSort: Int = AppSortOption.ByUsedTime.value,
+    // 自动检查更新，默认关闭
+    val autoCheckUpdate: Boolean = false,
 )
