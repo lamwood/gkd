@@ -46,4 +46,6 @@ data class SettingsStore(
     val a11yAppSort: Int = AppSortOption.ByUsedTime.value,
     // 自动检查更新，默认关闭
     val autoCheckUpdate: Boolean = false,
+    // 记录界面日志，默认关闭
+    val recordActivityLog: Boolean = false,
 )

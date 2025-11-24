@@ -589,6 +589,16 @@ fun AdvancedPage() {
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
+            TextSwitch(
+                title = "记录日志",
+                subtitle = "记录界面切换日志",
+                checked = store.recordActivityLog,
+                onCheckedChange = {
+                    storeFlow.value = store.copy(
+                        recordActivityLog = it
+                    )
+                }
+            )
             SettingItem(
                 title = "界面日志",
                 subtitle = "界面切换日志",

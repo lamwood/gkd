@@ -174,23 +174,28 @@ fun updateTopActivity(
     )
     lastValidActivity = oldActivity
     lastActivityUpdateTime = t
-    tempActivityLogList.add(
-        ActivityLog(
-            appId = appId,
-            activityId = activityId,
-            ctime = t,
+
+    // 只有当recordActivityLog为true时才记录Activity日志
+    if (storeFlow.value.recordActivityLog) {
+        tempActivityLogList.add(
+            ActivityLog(
+                appId = appId,
+                activityId = activityId,
+                ctime = t,
+            )
         )
-    )
-    if (tempActivityLogList.size >= 16 || appId == META.appId) {
-        val logs = tempActivityLogList.toTypedArray()
-        tempActivityLogList.clear()
-        appScope.launchTry {
-            DbSet.activityLogDao.insert(*logs)
+        if (tempActivityLogList.size >= 16 || appId == META.appId) {
+            val logs = tempActivityLogList.toTypedArray()
+            tempActivityLogList.clear()
+            appScope.launchTry {
+                DbSet.activityLogDao.insert(*logs)
+            }
+        }
+        if (activityLogCount++ % 100 == 0) {
+            appScope.launchTry { DbSet.activityLogDao.deleteKeepLatest() }
         }
     }
-    if (activityLogCount++ % 100 == 0) {
-        appScope.launchTry { DbSet.activityLogDao.deleteKeepLatest() }
-    }
+
     val topActivity = topActivityFlow.value
     val oldActivityRule = activityRuleFlow.value
     val ruleSummary = ruleSummaryFlow.value
