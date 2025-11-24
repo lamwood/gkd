@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import li.songe.gkd.appScope
 import li.songe.gkd.service.A11yService
 import li.songe.gkd.store.storeFlow
 import li.songe.loc.Loc
+import li.songe.gkd.R
 
 @Loc
 fun toast(
@@ -115,9 +117,13 @@ fun showActionToast() {
             if (storeFlow.value.useSystemToast) {
                 showSystemToast(storeFlow.value.actionToast)
             } else {
-                showA11yToast(
-                    storeFlow.value.actionToast
-                )
+                if(storeFlow.value.actionToast == "GKD"){
+                    showCustomToast();
+                } else {
+                    showA11yToast(
+                        storeFlow.value.actionToast
+                    )
+                }
             }
         }
     }
@@ -167,6 +173,53 @@ private fun showA11yToast(message: CharSequence) {
             wm.removeViewImmediate(textView)
         } catch (_: Exception) {
         }
+    }
+}
+
+/**
+ * 在屏幕右上角状态栏下方显示一个红色的Favorite图标，持续1秒钟，并带有淡入淡出动画效果
+ */
+fun showCustomToast(){
+    val service = A11yService.instance ?: return;
+    val wm = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val imageView = ImageView(service).apply {
+        setImageResource(R.drawable.ic_favorite)
+        setColorFilter(Color.RED)
+    }
+    //
+    val layoutParams = WindowManager.LayoutParams().apply {
+        type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+        format = PixelFormat.TRANSLUCENT
+        flags = arrayOf(
+            flags,
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        ).reduce { acc, i -> acc or i }
+        packageName = service.packageName
+        width = 24.dp.px.toInt()
+        height = 24.dp.px.toInt()
+        gravity = Gravity.TOP or Gravity.CENTER
+        //状态栏高度通常为 24dp 左右，设置 y 为 24dp 可以让图标显示在状态栏下方
+        y = 0.dp.px.toInt()
+        x = 0.dp.px.toInt()
+        windowAnimations = android.R.style.Animation_Toast
+    }
+    wm.addView(imageView, layoutParams)
+    //添加淡入动画
+    imageView.alpha = 0f
+    imageView.animate().alpha(1f).setDuration(200L).start()
+    runMainPost(1200L) {
+        try {
+            //添加淡出动画
+            imageView.animate().alpha(0f).setDuration(200L)
+                .withEndAction {
+                    try {
+                        wm.removeViewImmediate(imageView)
+                    } catch (_: Exception) {}
+                }
+                .start()
+        } catch (_: Exception) {}
     }
 }
 
